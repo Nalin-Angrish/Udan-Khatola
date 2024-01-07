@@ -8,7 +8,7 @@ private:
   double outMin, outMax;
 
 public:
-  PIDController(double Kp, double Ki, double Kd, double outputMin, double outputMax)
+  PIDController(double Kp, double Ki , double Kd , double outputMin , double outputMax )
   {
     outMin = outputMin;
     outMax = outputMax;

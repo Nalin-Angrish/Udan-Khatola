@@ -8,7 +8,6 @@
 const int rudderPin = 9;
 const int aileronPin = 10;
 const int elevatorPin = 11;
-
 const int rudderDefault = 90;
 const int aileronDefault = 90;
 const int elevatorDefault = 90;
@@ -22,9 +21,13 @@ float roll, pitch;
 float targetRoll, targetPitch;
 
 // ==================== PID Controller ==================== //
+// defining PID for aileron and elevator
+PIDController PIDAilerons(0, 0, 0, 0, 0);
+PIDController PIDElevators(0, 0, 0, 0, 0);
 // TODO: Tune the PID values
 
-void setup(){
+void setup()
+{
   // ==================== Enable Serial Communication to obtain debugging data ==================== //
   Serial.begin(115200);
   Serial.println("Starting Setup");
@@ -54,12 +57,17 @@ void setup(){
   // ground station / remote control.
 
   Serial.println("Setup Done");
+  PIDAilerons.setSetpoint(targetRoll);
+  PIDElevators.setSetpoint(targetPitch);
 }
 
-void loop(){
+void loop()
+{
   // Use acceleromter and gyro angle values to obtain the roll and pitch values
   roll = gyro.roll();
   pitch = gyro.pitch();
+  aileron.write(PIDAilerons.compute(gyro.roll()));
+  elevator.write(PIDElevators.compute(gyro.pitch()));
 
   // ==================== Print the values ==================== //
   Serial.print(pitch);
