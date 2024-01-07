@@ -4,8 +4,7 @@
 class GyroSensor{
 private:
   const int MPU = 0x68;
-  float AccErrorX, AccErrorY, GyroErrorZ;
-  float gyroAngleZ;
+  float AccErrorX, AccErrorY;
   float elapsedTime, currentTime, previousTime;
 
 public:
@@ -25,23 +24,18 @@ public:
   void calibrate(){
     AccErrorX = 0;
     AccErrorY = 0;
-    GyroErrorZ = 0;
     for (int c=0; c < 200; c++){
       // Sum all readings
       AccelerometerData accData = getAccelerometerData();
-      GyroErrorZ += getGyroscopeData(false);
       AccErrorX += accData.angleX;
       AccErrorY += accData.angleY;
     }
     AccErrorX /= -200;
     AccErrorY /= -200;
-    GyroErrorZ /= -200;
     Serial.print("AccErrorX: ");
     Serial.println(AccErrorX);
     Serial.print("AccErrorY: ");
     Serial.println(AccErrorY);
-    Serial.print("GyroErrorZ: ");
-    Serial.println(GyroErrorZ);
   }
 
   AccelerometerData getAccelerometerData(){
@@ -63,37 +57,11 @@ public:
     return acc;
   }
 
-  float getGyroscopeData(bool considerError){
-    // ==================== Obtain Gyro data (only z axis) from MPU6050 ==================== //
-    previousTime = currentTime;                        // Previous time is stored before the actual time read
-    currentTime = millis();                            // Current time actual time read
-    elapsedTime = (currentTime - previousTime) / 1000; // Divide by 1000 to get seconds
-
-    Wire.beginTransmission(MPU); // Begin transmission to the MPU-6050
-    Wire.write(0x47);            // Start with register 0x47 (GYRO_ZOUT_H)
-    Wire.endTransmission(false);
-    Wire.requestFrom(MPU, 2, true); // Request 2 registers in total
-
-    // Divide the raw values by 131 for a range of +-250deg/s, according to the datasheet
-    // Also adjust the calculated error values
-    float errorToConsider = 0;
-    if(considerError) errorToConsider = GyroErrorZ;
-    float GyroZ = ((Wire.read() << 8 | Wire.read()) / 131.0) + errorToConsider; // Z-axis value
-
-    // Get the new values for the angles from the gyro
-    gyroAngleZ = gyroAngleZ + GyroZ * elapsedTime;
-    return gyroAngleZ;
-  }
-
   float pitch(){
     return getAccelerometerData().angleX + AccErrorX;
   }
 
   float roll(){
     return getAccelerometerData().angleY + AccErrorY;
-  }
-  
-  float yaw(){
-    return getGyroscopeData(true);
   }
 };

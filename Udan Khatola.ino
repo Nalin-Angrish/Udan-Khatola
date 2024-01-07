@@ -17,11 +17,13 @@ Servo rudder, aileron, elevator;
 
 // ==================== Gyro and Accelerometer data ==================== //
 GyroSensor gyro;
-float roll, pitch, yaw;
+float roll, pitch;
+float targetRoll, targetPitch;
 
 void setup(){
   // ==================== Enable Serial Communication to obtain debugging data ==================== //
   Serial.begin(115200);
+  Serial.println("Starting Setup");
 
   // ==================== Setup Servo Motors and set them to default position ==================== //
   rudder.attach(rudderPin);
@@ -37,21 +39,27 @@ void setup(){
   gyro.setup();
   gyro.calibrate();
 
-  // ==================== Setup Done ==================== //
+  // ==================== Set Target Values ==================== //
+  // For now, we need to keep the aircraft stable. For this, we need
+  // to keep the roll and pitch values to 0. We will use the gyro
+  // sensor to obtain the roll and pitch values and then use the
+  // servo motors to adjust the actual roll and pitch values to 0.
+  targetRoll = 0;
+  targetPitch = 0;
+  // In real use cases, these values will be obtained from the
+  // ground station / remote control.
+
   Serial.println("Setup Done");
 }
 
 void loop(){
-  // Use acceleromter and gyro angle values to obtain the roll, pitch and yaw values
+  // Use acceleromter and gyro angle values to obtain the roll and pitch values
   roll = gyro.roll();
   pitch = gyro.pitch();
-  yaw = gyro.yaw();
 
   // ==================== Print the values ==================== //
   Serial.print(pitch);
   Serial.print(" ");
-  Serial.print(roll);
-  Serial.print(" ");
-  Serial.println(yaw);
+  Serial.println(roll);
   delay(200);
 }
