@@ -26,22 +26,16 @@ public:
     AccErrorX = 0;
     AccErrorY = 0;
     GyroErrorZ = 0;
-    int c=0;
-    while (c < 200){
-      AccelerometerData accData = getAccelerometerData();
+    for (int c=0; c < 200; c++){
       // Sum all readings
+      AccelerometerData accData = getAccelerometerData();
+      GyroErrorZ += getGyroscopeData(false);
       AccErrorX += accData.angleX;
       AccErrorY += accData.angleY;
-      c++;
     }
-    c = 0;
-    while (c < 200){
-      GyroErrorZ += getGyroscopeData(false);
-      c++;
-    }
-    AccErrorX /= 200;
-    AccErrorY /= 200;
-    GyroErrorZ /= 200;
+    AccErrorX /= -200;
+    AccErrorY /= -200;
+    GyroErrorZ /= -200;
     Serial.print("AccErrorX: ");
     Serial.println(AccErrorX);
     Serial.print("AccErrorY: ");
