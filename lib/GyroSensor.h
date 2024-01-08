@@ -1,19 +1,23 @@
 #include<Wire.h>
 
-
 class GyroSensor{
 private:
+  // MPU 6050 Register
   const int MPU = 0x68;
+  // Error values for the accelerometer
   float AccErrorX, AccErrorY;
+  // Time variables
   float elapsedTime, currentTime, previousTime;
 
 public:
   struct AccelerometerData{
+    // ==================== Accelerometer Data ==================== //
     float angleX;
     float angleY;
   };
 
   void setup(){
+    // ==================== Initialize the MPU6050 Module ==================== //
     Wire.begin();
     Wire.beginTransmission(MPU);
     Wire.write(0x6B); // PWR_MGMT_1 register
@@ -22,6 +26,8 @@ public:
   }
 
   void calibrate(){
+    // ==================== Calibrate the MPU6050 Module ==================== //
+    // Setup the error values for the accelerometer
     AccErrorX = 0;
     AccErrorY = 0;
     for (int c=0; c < 200; c++){
@@ -30,6 +36,7 @@ public:
       AccErrorX += accData.angleX;
       AccErrorY += accData.angleY;
     }
+    // Take average and use negative sign to bring readings to 0 on ground
     AccErrorX /= -200;
     AccErrorY /= -200;
     Serial.print("AccErrorX: ");
@@ -58,10 +65,12 @@ public:
   }
 
   float pitch(){
+    // ==================== Obtain Pitch from MPU6050 ==================== //
     return getAccelerometerData().angleX + AccErrorX;
   }
 
   float roll(){
+    // ==================== Obtain Roll from MPU6050 ==================== //
     return getAccelerometerData().angleY + AccErrorY;
   }
 };

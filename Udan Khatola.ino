@@ -20,7 +20,7 @@ float targetRoll, targetPitch;
 // ==================== PID and Servo Controller ==================== //
 Servo aileron, elevator;
 PIDController PIDAilerons(5, 0, 0, -30, 30);
-PIDController PIDElevators(5, 0, 0, -30, 30);
+PIDController PIDElevators(5, 0, 0, -60, 60);
 
 void setup()
 {
@@ -47,12 +47,13 @@ void setup()
   // servo motors to adjust the actual roll and pitch values to 0.
   targetRoll = 0;
   targetPitch = 0;
+  // Set the PID setpoints to the target values
+  PIDAilerons.setSetpoint(targetRoll);
+  PIDElevators.setSetpoint(targetPitch);
   // In real use cases, these values will be obtained from the
   // ground station / remote control and will be updated in loop.
 
   Serial.println("Setup Done");
-  PIDAilerons.setSetpoint(targetRoll);
-  PIDElevators.setSetpoint(targetPitch);
 }
 
 void loop()
@@ -60,18 +61,14 @@ void loop()
   // Use acceleromter and gyro angle values to obtain the roll and pitch values
   roll = gyro.roll();
   pitch = gyro.pitch();
+  // Obtain the aileron and elevator deflection from the PID controller
   double aileronValue = PIDAilerons.compute(roll);
   double elevatorValue = PIDElevators.compute(pitch);
   Serial.print("Aileron Value: ");
   Serial.println(aileronValue);
   Serial.print("Elevator Value: ");
   Serial.println(elevatorValue);
+  // Set the servo motors to the deflected position
   aileron.write(aileronDefault + aileronValue*aileronDirection);
   elevator.write(elevatorDefault + elevatorValue*elevatorDirection);
-
-  // ==================== Print the values ==================== //
-  // Serial.print(pitch);
-  // Serial.print(" ");
-  // Serial.println(roll);
-  delay(200);
 }
