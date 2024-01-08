@@ -5,26 +5,22 @@
 #include "lib/PID.h"
 
 // ==================== All Constants ==================== //
-const int rudderPin = 9;
 const int aileronPin = 10;
-const int elevatorPin = 11;
-const int rudderDefault = 90;
-const int aileronDefault = 90;
+const int elevatorPin = 9;
+const int aileronDefault = 90;  // Depends on the servo motor orientation
 const int elevatorDefault = 90;
-
-// ==================== Servo motors for plane control ==================== //
-Servo rudder, aileron, elevator;
+const int aileronDirection = 1; // Depends on the servo motor orientation... again
+const int elevatorDirection = -1;
 
 // ==================== Gyro and Accelerometer data ==================== //
 GyroSensor gyro;
 float roll, pitch;
 float targetRoll, targetPitch;
 
-// ==================== PID Controller ==================== //
-// defining PID for aileron and elevator
-PIDController PIDAilerons(0, 0, 0, 0, 0);
-PIDController PIDElevators(0, 0, 0, 0, 0);
-// TODO: Tune the PID values
+// ==================== PID and Servo Controller ==================== //
+Servo aileron, elevator;
+PIDController PIDAilerons(5, 0, 0, -30, 30);
+PIDController PIDElevators(5, 0, 0, -30, 30);
 
 void setup()
 {
@@ -33,11 +29,9 @@ void setup()
   Serial.println("Starting Setup");
 
   // ==================== Setup Servo Motors and set them to default position ==================== //
-  rudder.attach(rudderPin);
   aileron.attach(aileronPin);
   elevator.attach(elevatorPin);
 
-  rudder.write(rudderDefault);
   aileron.write(aileronDefault);
   elevator.write(elevatorDefault);
 
@@ -54,7 +48,7 @@ void setup()
   targetRoll = 0;
   targetPitch = 0;
   // In real use cases, these values will be obtained from the
-  // ground station / remote control.
+  // ground station / remote control and will be updated in loop.
 
   Serial.println("Setup Done");
   PIDAilerons.setSetpoint(targetRoll);
@@ -66,12 +60,18 @@ void loop()
   // Use acceleromter and gyro angle values to obtain the roll and pitch values
   roll = gyro.roll();
   pitch = gyro.pitch();
-  aileron.write(PIDAilerons.compute(gyro.roll()));
-  elevator.write(PIDElevators.compute(gyro.pitch()));
+  double aileronValue = PIDAilerons.compute(roll);
+  double elevatorValue = PIDElevators.compute(pitch);
+  Serial.print("Aileron Value: ");
+  Serial.println(aileronValue);
+  Serial.print("Elevator Value: ");
+  Serial.println(elevatorValue);
+  aileron.write(aileronDefault + aileronValue*aileronDirection);
+  elevator.write(elevatorDefault + elevatorValue*elevatorDirection);
 
   // ==================== Print the values ==================== //
-  Serial.print(pitch);
-  Serial.print(" ");
-  Serial.println(roll);
+  // Serial.print(pitch);
+  // Serial.print(" ");
+  // Serial.println(roll);
   delay(200);
 }
