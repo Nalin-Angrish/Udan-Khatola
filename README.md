@@ -27,9 +27,13 @@ The root folder of the project consists of the following files:
 ## Code explanation
 The code is very intuitive and well commented so that it is easy to understand. Here's a summary of the code and workflow:
 #### lib/Barometer.h
+![barometer](https://github.com/Nalin-Angrish/Udan-Khatola/assets/54469875/35d22c62-60c8-426e-a516-38f640cde2f5)
 #### lib/GyroSensor.h
+![gyrosensor](https://github.com/Nalin-Angrish/Udan-Khatola/assets/54469875/b97d3513-9059-40fa-8a93-c0c6339b286e)
 #### lib/PID.h
+![pid](https://github.com/Nalin-Angrish/Udan-Khatola/assets/54469875/7f5af4f1-6dc9-444a-804e-a2a3cd98af0b)
 #### Udan Khatola.ino
+![arduino](https://github.com/Nalin-Angrish/Udan-Khatola/assets/54469875/c81448eb-c0b9-4d79-a6ec-cf4cec96f3c6)
 
 ## Third Party Libraries used
 The code uses mostly the standard arduino library for all its tasks, but a few features could be better implemented using libraries available on arduino's library manager.
@@ -46,6 +50,9 @@ We were all beginners and had very limited knowledge in this field. For learning
 
 ## The Team
 The team was of 3 first year undergraduate students at Indian Institute of Technology Ropar:
-- Nalin Angrish (2023MEB1360)
-- Somya Katoch (2023MEB1384)
-- Abhigyan Singh (2023MEB1320)
+- Nalin Angrish (2023MEB1360)    
+    GitHub: [Nalin-Angrish](https://github.com/Nalin-Angrish)
+- Somya Katoch (2023MEB1384)    
+    GitHub: [somyakatoch](https://github.com/somyakatoch)
+- Abhigyan Singh (2023MEB1320)    
+    GitHub: [Abhigyann-Singh](https://github.com/Abhigyann-Singh)
