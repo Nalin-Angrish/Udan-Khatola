@@ -4,7 +4,7 @@ This project is our submission for a competition organized by the Aeromodelling 
 The complete code for this project is hosted at https://github.com/Nalin-Angrish/Udan-Khatola
 
 ## The Problem Statement
-We were given the task of coding a PID control system for self-leveling of the plane in the pitch and roll axis, as well maintaining altitude when given command from the transmitter. It was assumed to use the Arduino Uno microcontroller.
+We were given the task of coding a PID control system for self-leveling of the plane in the pitch and roll axis, as well maintaining altitude when given command from the transmitter. It was assumed to use the Arduino Uno microcontroller. This is the Level 2 of the given problem statement.
 
 ## The Solution
 For this project, we implemented I2C communication for obtaining accelerometer data from the MPU6050 Module. This data was used to turn the servos for ailerons and elevators appropriately in order to correct the pitch and roll caused by external factors. The servos also employ a PID controller to regulate these values.  
