@@ -1,0 +1,31 @@
+Nalin, Aman and Abhigyan
+[] - Add Kalman Filter
+[] - Use Cascading PID
+[] - Use gyroscope readings to get angle
+
+Kshitij and Ponnathavan
+[] - Use 2 servo motors instead of 1 for ailerons
+[] - PID tuning (research on how to do)
+[] - Aerodynamics stuff (primarily research)
+
+Pradhyuman and Sarthak
+[] - Use RF receiver to control
+[] - Add throttle control functionality with RF receiver
+
+Aman and Arjun:
+[] - maintain 50Hz freq (add suitable delays)
+[] - Implement yaw control
+
+Notes:
+- RF Transmitter will send angle, not rate.
+- Use kalman filter for all 3 axes, but single loop PID for yaw and cascading PID for roll and pitch
+
+Team:
+- Nalin
+- Abhigyan
+- Aman
+- Arjun
+- Pradhyuman
+- Sarthak
+- Kshitij
+- Ponnathavan
