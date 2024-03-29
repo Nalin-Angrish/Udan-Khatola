@@ -8,19 +8,22 @@
 // ==================== All Constants ==================== //
 const int aileronPin = 10;
 const int elevatorPin = 9;
+const int rudderPin = 8;
 const int aileronDefault = 90;  // Depends on the servo motor orientation
 const int elevatorDefault = 90;
+const int rudderDefault = 90;
 const int aileronDirection = 1; // Depends on the servo motor orientation... again
 const int elevatorDirection = -1;
+const int yawDirection = 1;
 
 // ==================== Gyro and Barometer data ==================== //
 GyroSensor gyro;
-float roll, pitch;
+float roll, pitch, yaw;
 float targetRoll, targetPitch;
 float altitude, targetAltitude;
 
 // ==================== PID and Servo Controller ==================== //
-Servo aileron, elevator;
+Servo aileron, elevator, rudder;
 PIDController PIDAilerons(5, 0, 0, -30, 30);
 PIDController PIDElevators(5, 0, 0, -60, 60);
 
@@ -33,9 +36,11 @@ void setup()
   // ==================== Setup Servo Motors and set them to default position ==================== //
   aileron.attach(aileronPin);
   elevator.attach(elevatorPin);
+  rudder.attach(rudderPin);
 
   aileron.write(aileronDefault);
   elevator.write(elevatorDefault);
+  rudder.write(rudderDefault);
 
   // ==================== Setup MPU6050 Module ==================== //
   Serial.println("Initializing I2C devices...");
@@ -60,6 +65,7 @@ void setup()
 
 void loop()
 {
+  unsigned long currentTime = millis();          // Get the current time in milliseconds
   // Use acceleromter and gyro angle values and barometer data to obtain the roll, pitch and altitude values
   roll = gyro.roll();
   pitch = gyro.pitch();
@@ -73,4 +79,15 @@ void loop()
   // Set the servo motors to the deflected position
   aileron.write(aileronDefault + aileronValue*aileronDirection);
   elevator.write(elevatorDefault + elevatorValue*elevatorDirection);
+  //For yaw no need of PID, so feeding raw value from reciever to rudder servo motor
+  yaw = constrain(yaw, -30, 30);                //constraining raw values so as to prevent extreme servo movements
+  rudder.write(rudderDefault + yaw*yawDirection);
+
+  // Efficiently maintain a 50Hz frequency using a delay.
+  // Instead of a fixed delay(20), dynamically adjust for program execution time.
+  unsigned long endTime = millis();             // Record current time.
+  unsigned long loopEndTime = currentTime + 20; // Calculate the expected end time of the loop.
+  if (loopEndTime < endTime) {
+    delay(loopEndTime - endTime);               // If program already exceeded 20ms, no need to delay.  
+  }
 }
