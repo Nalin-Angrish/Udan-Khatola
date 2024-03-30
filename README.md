@@ -42,6 +42,8 @@ The team consisted of first year undergraduate students at Indian Institute of T
 - Arjun Maindarkar ([programmingmaster69](https://github.com/programmingmaster69))
 - Ponnathavan S ([Ponnathavan](https://github.com/Ponnathavan))
 - Kshitij Kumar ([Kshitijsqdn303](https://github.com/Kshitijsqdn303))  
+- Pradhyuman ([Pradhyu18](https://github.com/Pradhyu18))  
+- Sarthak Gupta ([sarthakGIT0305](https://github.com/sarthakGIT0305))  
 
 And a previous contributor:
 - Somya Katoch ([somyakatoch](https://github.com/somyakatoch))
