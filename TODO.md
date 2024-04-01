@@ -1,7 +1,7 @@
 Nalin, Aman and Abhigyan:  
 [ ] - Add Kalman Filter  
 [ ] - Use Cascading PID  
-[ ] - Use gyroscope readings to get angle  
+[x] - Use gyroscope readings to get angle  
 
 Kshitij and Ponnathavan (Research):  
 [ ] - PID tuning  
