@@ -14,18 +14,19 @@ const int elevatorDefault = 90;
 const int rudderDefault = 90;
 const int aileronDirection = 1; // Depends on the servo motor orientation... again
 const int elevatorDirection = -1;
-const int yawDirection = 1;
+const int rudderDirection = 1;
 
 // ==================== Gyro and Barometer data ==================== //
 GyroSensor gyro;
 float roll, pitch, yaw;
 float targetRoll, targetPitch;
-float altitude, targetAltitude;
 
 // ==================== PID and Servo Controller ==================== //
 Servo aileron, elevator, rudder;
 PIDController PIDAilerons(5, 0, 0, -30, 30);
 PIDController PIDElevators(5, 0, 0, -60, 60);
+PIDController PIDRudder(5, 0, 0, -30, 30);
+float aileronValue, elevatorValue, rudderValue;
 
 void setup()
 {
@@ -57,6 +58,7 @@ void setup()
   // Set the PID setpoints to the target values
   PIDAilerons.setSetpoint(targetRoll);
   PIDElevators.setSetpoint(targetPitch);
+  PIDRudder.setSetpoint(0);
   // In real use cases, these values will be obtained from the
   // ground station / remote control and will be updated in loop.
 
@@ -66,22 +68,24 @@ void setup()
 void loop()
 {
   unsigned long currentTime = millis();          // Get the current time in milliseconds
-  // Use acceleromter and gyro angle values and barometer data to obtain the roll, pitch and altitude values
+  // Use acceleromter and gyro angle values and barometer data to obtain the roll and pitch values
   roll = gyro.roll();
   pitch = gyro.pitch();
+  yaw = gyro.yaw();
   // Obtain the aileron and elevator deflection from the PID controller
-  double aileronValue = PIDAilerons.compute(roll);
-  double elevatorValue = PIDElevators.compute(pitch);
+  aileronValue = PIDAilerons.compute(roll);
+  elevatorValue = PIDElevators.compute(pitch);
+  rudderValue = PIDRudder.compute(yaw);
   Serial.print("Aileron Value: ");
   Serial.println(aileronValue);
   Serial.print("Elevator Value: ");
   Serial.println(elevatorValue);
+  Serial.print("Rudder Value: ");
+  Serial.println(rudderValue);
   // Set the servo motors to the deflected position
   aileron.write(aileronDefault + aileronValue*aileronDirection);
   elevator.write(elevatorDefault + elevatorValue*elevatorDirection);
-  //For yaw no need of PID, so feeding raw value from reciever to rudder servo motor
-  yaw = constrain(yaw, -30, 30);                //constraining raw values so as to prevent extreme servo movements
-  rudder.write(rudderDefault + yaw*yawDirection);
+  rudder.write(rudderDefault + rudderValue*rudderDirection);
 
   // Efficiently maintain a 50Hz frequency using a delay.
   // Instead of a fixed delay(20), dynamically adjust for program execution time.

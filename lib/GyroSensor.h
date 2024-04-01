@@ -16,12 +16,25 @@ public:
     float angleY;
   };
 
+  struct GyroscopeData{
+    // ==================== Gyroscope Data ==================== //
+    float rateX;
+    float rateY;
+    float rateZ;
+  };
+
   void setup(){
     // ==================== Initialize the MPU6050 Module ==================== //
     Wire.begin();
     Wire.beginTransmission(MPU);
     Wire.write(0x6B); // PWR_MGMT_1 register
     Wire.write(0);    // set to zero (wakes up the MPU-6050)
+    Wire.endTransmission(true);
+
+    // Set the range of the gyroscope to +- 250 degrees per second
+    Wire.beginTransmission(MPU);
+    Wire.write(0x1B); // GYRO_CONFIG register
+    Wire.write(0b00011000); // Set the range to +- 250 degrees per second
     Wire.endTransmission(true);
   }
 
@@ -64,6 +77,21 @@ public:
     return acc;
   }
 
+  GyroscopeData getGyroscopeData(){
+    // ==================== Obtain Gyroscope data from MPU6050 ==================== //
+    Wire.beginTransmission(MPU);    // Begin transmission to the MPU-6050
+    Wire.write(0x43);               // Start with register 0x43 (GYRO_XOUT_H)
+    Wire.endTransmission(false);    // Restart the transmission before reading the data
+    Wire.requestFrom(MPU, 6, true); // Request 6 registers in total
+
+    // Divide the raw values by 131 for a range of +-250 degrees per second, according to the datasheet
+    GyroscopeData gyro;
+    gyro.rateX = (Wire.read() << 8 | Wire.read()) / 131.0; // X-axis value
+    gyro.rateY = (Wire.read() << 8 | Wire.read()) / 131.0; // Y-axis value
+    gyro.rateZ = (Wire.read() << 8 | Wire.read()) / 131.0; // Z-axis value
+    return gyro;
+  }
+
   float pitch(){
     // ==================== Obtain Pitch from MPU6050 ==================== //
     return getAccelerometerData().angleX + AccErrorX;
@@ -72,5 +100,10 @@ public:
   float roll(){
     // ==================== Obtain Roll from MPU6050 ==================== //
     return getAccelerometerData().angleY + AccErrorY;
+  }
+
+  float yaw(){
+    // ==================== Obtain Yaw from MPU6050 ==================== //
+    return getGyroscopeData().rateZ;
   }
 };
