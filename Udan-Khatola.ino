@@ -7,13 +7,16 @@
 #include "lib/RFController.h"
 
 // ==================== All Constants ==================== //
-const int aileronPin = 10;
-const int elevatorPin = 9;
-const int rudderPin = 8;
-const int aileronDefault = 90;  // Depends on the servo motor orientation
+const int aileronPin1 = 10;
+const int aileronPin2 = 9;
+const int elevatorPin = 8;
+const int rudderPin = 7;
+const int aileron1Default = 90;  // Depends on the servo motor orientation
+const int aileron2Default = 90;
 const int elevatorDefault = 90;
 const int rudderDefault = 90;
-const int aileronDirection = 1; // Depends on the servo motor orientation... again
+const int aileron1Direction = 1; // Depends on the servo motor orientation... again
+const int aileron2Direction = 1; 
 const int elevatorDirection = -1;
 const int rudderDirection = 1;
 
@@ -26,7 +29,7 @@ float roll, pitch;
 float targetRoll, targetPitch;
 
 // ==================== PID and Servo Controller ==================== //
-Servo aileron, elevator, rudder;
+Servo aileron1, aileron2, elevator, rudder;
 PIDController PIDAilerons(5, 0, 0, -30, 30);
 PIDController PIDElevators(5, 0, 0, -60, 60);
 float aileronValue, elevatorValue;
@@ -42,11 +45,13 @@ void setup()
   Serial.println("Starting Setup");
 
   // ==================== Setup Servo Motors and set them to default position ==================== //
-  aileron.attach(aileronPin);
+  aileron1.attach(aileronPin1);
+  aileron2.attach(aileronPin2);
   elevator.attach(elevatorPin);
   rudder.attach(rudderPin);
 
-  aileron.write(aileronDefault);
+  aileron1.write(aileron1Default);
+  aileron2.write(aileron2Default);
   elevator.write(elevatorDefault);
   rudder.write(rudderDefault);
 
@@ -98,7 +103,8 @@ void loop()
   Serial.println(controls.yaw);
 
   // Set the servo motors to the deflected position
-  aileron.write(aileronDefault + aileronValue*aileronDirection);
+  aileron1.write(aileron1Default + aileronValue*aileron1Direction);
+  aileron2.write(aileron2Default - aileronValue*aileron2Direction);
   elevator.write(elevatorDefault + elevatorValue*elevatorDirection);
   rudder.write(rudderDefault + controls.yaw*rudderDirection);
 
