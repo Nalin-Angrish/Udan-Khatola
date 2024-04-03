@@ -11,6 +11,7 @@ const int aileronPin1 = 10;
 const int aileronPin2 = 9;
 const int elevatorPin = 8;
 const int rudderPin = 7;
+const int throttlePin = 5 ; // new pin for throttle 
 const int aileron1Default = 90;  // Depends on the servo motor orientation
 const int aileron2Default = 90;
 const int elevatorDefault = 90;
@@ -54,6 +55,11 @@ void setup()
   aileron2.write(aileron2Default);
   elevator.write(elevatorDefault);
   rudder.write(rudderDefault);
+
+  //=====================new pin setup for throttle ==========================//
+  pinMode(throttlePin,OUTPUT);
+  digitalWrite(throttlePin,LOW);
+
 
   // ==================== Setup MPU6050 Module ==================== //
   Serial.println("Initializing I2C devices...");
@@ -106,6 +112,10 @@ void loop()
   Serial.println(elevatorValue);
   Serial.print("Rudder Value: ");
   Serial.println(controls.yaw);
+  //===============using "controls.throttle" for BLDC ==============//
+  int speed = map(controls.throttle , 0 ,100 ,1000,2000 ) 
+  //============== deflection of the BLDC =============== // 
+  analogWrite(throttlePin,speed);
 
   // Set the servo motors to the deflected position
   aileron1.write(aileron1Default + aileronValue*aileron1Direction);
