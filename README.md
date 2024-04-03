@@ -37,15 +37,19 @@ The code uses mostly the standard arduino library for all its tasks, but a few f
 - PPM signal is taken from FS-i6X receiver module using the `PPM-reader` library by `Aapo Nikkilä, Dmitry Grigoryev`.
   
 ## The Team
-The team consisted of first year undergraduate students at Indian Institute of Technology Ropar:
+The team consisted of first year undergraduate students at Indian Institute of Technology Ropar.  
+Code contributors:
 - Nalin Angrish ([Nalin-Angrish](https://github.com/Nalin-Angrish))
 - Abhigyan Singh ([Abhigyann-Singh](https://github.com/Abhigyann-Singh))
 - Aman Mittal ([SikandarAman](https://github.com/SikandarAman))
+- Pradhyuman ([Pradhyu18](https://github.com/Pradhyu18))  
+  
+Design and Assembly contributors:
 - Arjun Maindarkar ([programmingmaster69](https://github.com/programmingmaster69))
 - Ponnathavan S ([Ponnathavan](https://github.com/Ponnathavan))
 - Kshitij Kumar ([Kshitijsqdn303](https://github.com/Kshitijsqdn303))  
-- Pradhyuman ([Pradhyu18](https://github.com/Pradhyu18))  
 - Sarthak Gupta ([sarthakGIT0305](https://github.com/sarthakGIT0305))  
+- All code contributors
 
 And a previous contributor:
 - Somya Katoch ([somyakatoch](https://github.com/somyakatoch))
