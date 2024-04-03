@@ -13,6 +13,7 @@ The root folder of the project consists of the following files:
   - `Gyrosensor.h`: Abstraction layer for using the MPU6050 Accelerometer/Gyroscope module.
   - `Kalman.h`: The kalman filter.
   - `PID.h`: Custom implementation of PID Controller.
+  - `RFController.h`: Abstraction layer for reading and interpreting controller signals.
 - `model`:
   - `Model.blend`: Blender model for the skeletal structure of our RC Plane design.
   - `Model.png`: A rendered image of the design.
@@ -33,6 +34,7 @@ The code is very intuitive and well commented so that it is easy to understand. 
 The code uses mostly the standard arduino library for all its tasks, but a few features could be better implemented using libraries available on arduino's library manager.
 - The communication with the MPU6050 module has been established through the inbuilt `Wire.h` library.
 - Servo motors are controlled using the `ESP32Servo.h` library by `John K. Bennett, Kevin Harrington`.
+- PPM signal is taken from FS-i6X receiver module using the `PPM-reader` library by `Aapo Nikkilä, Dmitry Grigoryev`.
   
 ## The Team
 The team consisted of first year undergraduate students at Indian Institute of Technology Ropar:

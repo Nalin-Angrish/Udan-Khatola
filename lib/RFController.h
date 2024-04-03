@@ -1,5 +1,4 @@
 #include <PPMReader.h>
-// PPM-reader by Aapo Nikkilä, Dmitry Grigoryev Version 1.2.0
 
 struct ControlProps {
   float throttle = 0;
