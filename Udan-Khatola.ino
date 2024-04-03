@@ -26,7 +26,7 @@ float targetRoll, targetPitch;
 float altitude, targetAltitude;
 
 // ==================== PID and Servo Controller ==================== //
-Servo aileron1, elevator, rudder;
+Servo aileron1, aileron2, elevator, rudder;
 PIDController PIDAilerons(5, 0, 0, -30, 30);
 PIDController PIDElevators(5, 0, 0, -60, 60);
 
@@ -43,7 +43,7 @@ void setup()
   rudder.attach(rudderPin);
 
   aileron1.write(aileron1Default);
-  aileron2.wrtie(aileron2Default);
+  aileron2.write(aileron2Default);
   elevator.write(elevatorDefault);
   rudder.write(rudderDefault);
 

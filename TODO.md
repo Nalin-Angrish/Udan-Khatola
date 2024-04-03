@@ -14,7 +14,7 @@ Pradhyuman and Sarthak:
 Aman and Arjun:  
 [x] - maintain 50Hz freq (add suitable delays)  
 [x] - Implement yaw control  
-[ ] - Use 2 servo motors instead of 1 for ailerons  
+[x] - Use 2 servo motors instead of 1 for ailerons  
 
 Nalin:  
 [ ] - Update README  
