@@ -85,6 +85,11 @@ void loop()
   Serial.println(controls.pitch);
   Serial.print("Yaw: ");
   Serial.println(controls.yaw);
+  Serial.println("Throttle: ");
+  Serial.println(controls.throttle);
+  // TODO: control throttle BLDC here
+  // Assume that the throttle value the percent rpm of the BLDC motor
+
   PIDAilerons.setSetpoint(controls.roll);
   PIDElevators.setSetpoint(controls.pitch);
 
