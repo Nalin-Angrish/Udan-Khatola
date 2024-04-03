@@ -4,6 +4,7 @@
 
 #include "lib/GyroSensor.h"
 #include "lib/PID.h"
+#include "lib/RFController.h"
 
 // ==================== All Constants ==================== //
 const int aileronPin = 10;
@@ -16,17 +17,23 @@ const int aileronDirection = 1; // Depends on the servo motor orientation... aga
 const int elevatorDirection = -1;
 const int rudderDirection = 1;
 
+// ==================== Loop Timing ==================== //
+unsigned long loopEndTime, endTime, currentTime;
+
 // ==================== Gyro and Barometer data ==================== //
 GyroSensor gyro;
-float roll, pitch, yaw;
+float roll, pitch;
 float targetRoll, targetPitch;
 
 // ==================== PID and Servo Controller ==================== //
 Servo aileron, elevator, rudder;
 PIDController PIDAilerons(5, 0, 0, -30, 30);
 PIDController PIDElevators(5, 0, 0, -60, 60);
-PIDController PIDRudder(5, 0, 0, -30, 30);
-float aileronValue, elevatorValue, rudderValue;
+float aileronValue, elevatorValue;
+
+// ==================== Radio Control ==================== //
+RFController controller;
+ControlProps controls;
 
 void setup()
 {
@@ -53,13 +60,9 @@ void setup()
   // to keep the roll and pitch values to 0. We will use the gyro
   // sensor to obtain the roll and pitch values and then use the
   // servo motors to adjust the actual roll and pitch values to 0.
-  targetRoll = 0;
-  targetPitch = 0;
-  // Set the PID setpoints to the target values
-  PIDAilerons.setSetpoint(targetRoll);
-  PIDElevators.setSetpoint(targetPitch);
-  PIDRudder.setSetpoint(0);
-  // In real use cases, these values will be obtained from the
+  PIDAilerons.setSetpoint(0);
+  PIDElevators.setSetpoint(0);
+  // In the main program loop, these values will be obtained from the
   // ground station / remote control and will be updated in loop.
 
   Serial.println("Setup Done");
@@ -67,30 +70,42 @@ void setup()
 
 void loop()
 {
-  unsigned long currentTime = millis();          // Get the current time in milliseconds
-  // Use acceleromter and gyro angle values and barometer data to obtain the roll and pitch values
+  currentTime = millis();          // Get the current time in milliseconds
+
+  // Read the control values from the radio controller and set the PID setpoints
+  controls = controller.readControls(); 
+  Serial.print("Roll: ");
+  Serial.println(controls.roll);
+  Serial.print("Pitch: ");
+  Serial.println(controls.pitch);
+  Serial.print("Yaw: ");
+  Serial.println(controls.yaw);
+  PIDAilerons.setSetpoint(controls.roll);
+  PIDElevators.setSetpoint(controls.pitch);
+
+  // Use acceleromter and gyro values to obtain the roll, pitch and yaw values
   roll = gyro.roll();
   pitch = gyro.pitch();
-  yaw = gyro.yaw();
+
   // Obtain the aileron and elevator deflection from the PID controller
   aileronValue = PIDAilerons.compute(roll);
   elevatorValue = PIDElevators.compute(pitch);
-  rudderValue = PIDRudder.compute(yaw);
   Serial.print("Aileron Value: ");
   Serial.println(aileronValue);
   Serial.print("Elevator Value: ");
   Serial.println(elevatorValue);
   Serial.print("Rudder Value: ");
-  Serial.println(rudderValue);
+  Serial.println(controls.yaw);
+
   // Set the servo motors to the deflected position
   aileron.write(aileronDefault + aileronValue*aileronDirection);
   elevator.write(elevatorDefault + elevatorValue*elevatorDirection);
-  rudder.write(rudderDefault + rudderValue*rudderDirection);
+  rudder.write(rudderDefault + controls.yaw*rudderDirection);
 
   // Efficiently maintain a 50Hz frequency using a delay.
   // Instead of a fixed delay(20), dynamically adjust for program execution time.
-  unsigned long endTime = millis();             // Record current time.
-  unsigned long loopEndTime = currentTime + 20; // Calculate the expected end time of the loop.
+  endTime = millis();             // Record current time.
+  loopEndTime = currentTime + 20; // Calculate the expected end time of the loop.
   if (loopEndTime < endTime) {
     delay(loopEndTime - endTime);               // If program already exceeded 20ms, no need to delay.  
   }
