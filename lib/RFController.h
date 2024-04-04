@@ -1,32 +1,48 @@
-#include <PPMReader.h>
+#include <ppm.h>
 
-struct ControlProps {
-  float throttle = 0;
-  float roll = 0;
-  float pitch = 0;
-  float yaw = 0;
+class ControlProps {
+  public:
+    float throttle = 0;
+    float roll = 0;
+    float pitch = 0;
+    float yaw = 0;
+    ControlProps(){}
+    ControlProps(float t, float r, float p, float y){
+      throttle = t;
+      roll = r;
+      pitch = p;
+      yaw = y;
+    }
 };
-
-PPMReader ppm(34, 8);
 
 class RFController
 {
   private:
-    const int PORT = 34;
-    const int CHANNEL_COUNT = 8;
-  
+    int PORT;
+    float throttle = 0, roll = 0, pitch = 0, yaw = 0;
+    float buffer;
   public:
-    // RFController()
-    // {
-    //   ppm = PPMReader(PORT, CHANNEL_COUNT);
-    // }
+    RFController(float port){
+      PORT = port;
+    }
+    void begin()
+    {
+      ppm.begin(PORT, false);
+    }
     ControlProps readControls()
     {
-      ControlProps props;
-      props.throttle = ppm.latestValidChannelValue(1, 0);
-      props.roll = ppm.latestValidChannelValue(2, 0);
-      props.pitch = ppm.latestValidChannelValue(3, 0);
-      props.yaw = ppm.latestValidChannelValue(4, 0);
-      return props;
+      buffer = (ppm.read_channel(3) - 1500.0)/500;
+      if(buffer > 0.1 || buffer < -0.1) // Necessary to remove the noise
+        throttle += buffer;
+      throttle = constrain(throttle, 0, 100);
+
+      buffer = map(ppm.read_channel(1), 1000, 2000, -90, 90);
+      if (buffer-roll > 1 || buffer-roll < -1) // Necessary to remove the noise
+        roll = buffer;
+      buffer = map(ppm.read_channel(2), 1000, 2000, -30, 30);
+      if (buffer-pitch > 1 || buffer-pitch < -1) // Necessary to remove the noise
+        pitch = buffer;
+      yaw = map(ppm.read_channel(4), 1000, 2000, -20, 20);
+      return ControlProps(throttle, roll, pitch, yaw);
     }
 };

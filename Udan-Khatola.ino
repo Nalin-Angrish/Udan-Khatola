@@ -5,6 +5,7 @@
 #include "lib/RFController.h"
 
 // ==================== All Constants ==================== //
+const int controllerPin = 5;
 const int aileronPin1 = 10;
 const int aileronPin2 = 9;
 const int elevatorPin = 8;
@@ -33,14 +34,15 @@ PIDController PIDElevators(5, 0, 0, -60, 60);
 float aileronValue, elevatorValue;
 
 // ==================== Radio Control ==================== //
-RFController controller;
+RFController controller(controllerPin);
 ControlProps controls;
 
 void setup()
 {
-  // ==================== Enable Serial Communication to obtain debugging data ==================== //
+  // ==================== Enable Serial and RF Communication to communicate data ==================== //
   Serial.begin(115200);
   Serial.println("Starting Setup");
+  controller.begin();
 
   // ==================== Setup Servo Motors and set them to default position ==================== //
   aileron1.attach(aileronPin1);
@@ -83,7 +85,7 @@ void loop()
   Serial.println(controls.pitch);
   Serial.print("Yaw: ");
   Serial.println(controls.yaw);
-  Serial.println("Throttle: ");
+  Serial.print("Throttle: ");
   Serial.println(controls.throttle);
   // TODO: control throttle BLDC here
   // Assume that the throttle value the percent rpm of the BLDC motor
