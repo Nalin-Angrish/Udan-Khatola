@@ -113,7 +113,7 @@ void loop()
   Serial.print("Rudder Value: ");
   Serial.println(controls.yaw);
   //===============using "controls.throttle" for BLDC ==============//
-  int speed = map(controls.throttle , 0 ,100 ,1000,2000 ) 
+  int speed = map(controls.throttle , 0 ,100 ,1000,2000 );
   //============== deflection of the BLDC =============== // 
   analogWrite(throttlePin,speed);
 
