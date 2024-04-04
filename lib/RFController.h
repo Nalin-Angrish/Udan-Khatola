@@ -17,32 +17,32 @@ class ControlProps {
 
 class RFController
 {
-  private:
-    int PORT;
-    float throttle = 0, roll = 0, pitch = 0, yaw = 0;
-    float buffer;
-  public:
-    RFController(float port){
-      PORT = port;
-    }
-    void begin()
-    {
-      ppm.begin(PORT, false);
-    }
-    ControlProps readControls()
-    {
-      buffer = (ppm.read_channel(3) - 1500.0)/500;
-      if(buffer > 0.1 || buffer < -0.1) // Necessary to remove the noise
-        throttle += buffer;
-      throttle = constrain(throttle, 0, 100);
+private:
+  int PORT;
+  float throttle = 0, roll = 0, pitch = 0, yaw = 0;
+  float buffer;
+public:
+  RFController(float port){
+    PORT = port;
+  }
+  void begin()
+  {
+    ppm.begin(PORT, false);
+  }
+  ControlProps readControls()
+  {
+    buffer = (ppm.read_channel(3) - 1500.0)/500;
+    if(buffer > 0.1 || buffer < -0.1) // Necessary to remove the noise
+      throttle += buffer;
+    throttle = constrain(throttle, 0, 100);
 
-      buffer = map(ppm.read_channel(1), 1000, 2000, -90, 90);
-      if (buffer-roll > 1 || buffer-roll < -1) // Necessary to remove the noise
-        roll = buffer;
-      buffer = map(ppm.read_channel(2), 1000, 2000, -30, 30);
-      if (buffer-pitch > 1 || buffer-pitch < -1) // Necessary to remove the noise
-        pitch = buffer;
-      yaw = map(ppm.read_channel(4), 1000, 2000, -20, 20);
-      return ControlProps(throttle, roll, pitch, yaw);
-    }
+    buffer = map(ppm.read_channel(1), 1000, 2000, -90, 90);
+    if (buffer-roll > 1 || buffer-roll < -1) // Necessary to remove the noise
+      roll = buffer;
+    buffer = map(ppm.read_channel(2), 1000, 2000, -30, 30);
+    if (buffer-pitch > 1 || buffer-pitch < -1) // Necessary to remove the noise
+      pitch = buffer;
+    yaw = map(ppm.read_channel(4), 1000, 2000, -20, 20);
+    return ControlProps(throttle, roll, pitch, yaw);
+  }
 };

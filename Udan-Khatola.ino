@@ -5,12 +5,13 @@
 #include "lib/RFController.h"
 
 // ==================== All Constants ==================== //
-const int controllerPin = 5;
-const int aileronPin1 = 10;
-const int aileronPin2 = 9;
-const int elevatorPin = 8;
-const int rudderPin = 7;
-const int throttlePin = 5 ; // new pin for throttle 
+const int controllerPin = 3;
+const int throttlePin = 9;
+const int aileronPin1 = 5;
+const int aileronPin2 = 6;
+const int elevatorPin = 10;
+const int rudderPin = 11;
+
 const int aileron1Default = 90;  // Depends on the servo motor orientation
 const int aileron2Default = 90;
 const int elevatorDefault = 90;
@@ -26,7 +27,7 @@ unsigned long loopEndTime, endTime, currentTime;
 // ==================== Gyro and Barometer data ==================== //
 GyroSensor gyro;
 float roll, pitch;
-float targetRoll, targetPitch;
+int speed;
 
 // ==================== PID and Servo Controller ==================== //
 Servo aileron1, aileron2, elevator, rudder;
@@ -56,9 +57,9 @@ void setup()
   elevator.write(elevatorDefault);
   rudder.write(rudderDefault);
 
-  //=====================new pin setup for throttle ==========================//
-  pinMode(throttlePin,OUTPUT);
-  digitalWrite(throttlePin,LOW);
+  //===================== Throttle Pin Setup ==========================//
+  pinMode(throttlePin, OUTPUT);
+  digitalWrite(throttlePin, LOW);
 
 
   // ==================== Setup MPU6050 Module ==================== //
@@ -85,16 +86,6 @@ void loop()
 
   // Read the control values from the radio controller and set the PID setpoints
   controls = controller.readControls(); 
-  Serial.print("Roll: ");
-  Serial.println(controls.roll);
-  Serial.print("Pitch: ");
-  Serial.println(controls.pitch);
-  Serial.print("Yaw: ");
-  Serial.println(controls.yaw);
-  Serial.print("Throttle: ");
-  Serial.println(controls.throttle);
-  // TODO: control throttle BLDC here
-  // Assume that the throttle value the percent rpm of the BLDC motor
 
   PIDAilerons.setSetpoint(controls.roll);
   PIDElevators.setSetpoint(controls.pitch);
@@ -112,10 +103,12 @@ void loop()
   Serial.println(elevatorValue);
   Serial.print("Rudder Value: ");
   Serial.println(controls.yaw);
-  //===============using "controls.throttle" for BLDC ==============//
-  int speed = map(controls.throttle , 0 ,100 ,1000,2000 );
-  //============== deflection of the BLDC =============== // 
-  analogWrite(throttlePin,speed);
+  Serial.print("Throttle: ");
+  Serial.println(controls.throttle);
+
+  // Control propeller speed using the throttle value
+  speed = map(controls.throttle, 0, 100, 1000, 2000);
+  analogWrite(throttlePin, speed);
 
   // Set the servo motors to the deflected position
   aileron1.write(aileron1Default + aileronValue*aileron1Direction);
@@ -127,7 +120,7 @@ void loop()
   // Instead of a fixed delay(20), dynamically adjust for program execution time.
   endTime = millis();             // Record current time.
   loopEndTime = currentTime + 20; // Calculate the expected end time of the loop.
-  if (loopEndTime < endTime) {
+  if (loopEndTime > endTime) {
     delay(loopEndTime - endTime);               // If program already exceeded 20ms, no need to delay.  
   }
 }

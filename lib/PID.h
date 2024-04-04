@@ -63,28 +63,28 @@ public:
 class CascadingPID
 {
 private:
-    PIDController innerPID;
-    PIDController outerPID;
+  PIDController innerPID;
+  PIDController outerPID;
 
 public:
-    CascadingPID(double innerKp, double innerKi, double innerKd, double outerKp, double outerKi, double outerKd, double innerOutputMin, double innerOutputMax, double outerOutputMin, double outerOutputMax)
-    {
-        innerPID = PIDController(innerKp, innerKi, innerKd, innerOutputMin, innerOutputMax);
-        outerPID = PIDController(outerKp, outerKi, outerKd, outerOutputMin, outerOutputMax);
-    }
-    void setInnerTunings(double innerKp, double innerKi, double innerKd)
-    {
-        innerPID.setTunings(innerKp, innerKi, innerKd);
-    }
-    void setOuterTunings(double outerKp, double outerKi, double outerKd)
-    {
-        outerPID.setTunings(outerKp, outerKi, outerKd);
-    }
-    double compute(double outerSetpoint, double KalmanInput,double GyroInput)
-    {   
-        outerPID.setSetpoint(outerSetpoint);
-        innerPID.setSetpoint(outerPID.compute(KalmanInput));
-        return innerPID.compute(GyroInput);
+  CascadingPID(double innerKp, double innerKi, double innerKd, double outerKp, double outerKi, double outerKd, double innerOutputMin, double innerOutputMax, double outerOutputMin, double outerOutputMax)
+  {
+      innerPID = PIDController(innerKp, innerKi, innerKd, innerOutputMin, innerOutputMax);
+      outerPID = PIDController(outerKp, outerKi, outerKd, outerOutputMin, outerOutputMax);
+  }
+  void setInnerTunings(double innerKp, double innerKi, double innerKd)
+  {
+      innerPID.setTunings(innerKp, innerKi, innerKd);
+  }
+  void setOuterTunings(double outerKp, double outerKi, double outerKd)
+  {
+      outerPID.setTunings(outerKp, outerKi, outerKd);
+  }
+  double compute(double outerSetpoint, double KalmanInput,double GyroInput)
+  {   
+      outerPID.setSetpoint(outerSetpoint);
+      innerPID.setSetpoint(outerPID.compute(KalmanInput));
+      return innerPID.compute(GyroInput);
 
-    }
+  }
 };

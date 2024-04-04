@@ -6,10 +6,10 @@ Kshitij and Ponnathavan (Research):
 [ ] - PID tuning  
 [ ] - Aerodynamics stuff  
 
-Pradhyuman and Sarthak:  
-[ ] - Add throttle control functionality with RF receiver  
+Pradhyuman:  
+[x] - Add throttle control functionality with RF receiver  
 
-Aman and Arjun:  
+Aman:  
 [x] - maintain 50Hz freq (add suitable delays)  
 [x] - Implement yaw control  
 [x] - Use 2 servo motors instead of 1 for ailerons  
@@ -17,6 +17,7 @@ Aman and Arjun:
 Nalin:  
 [x] - Use RF receiver to control  
 [x] - Use gyroscope readings to get angle  
+[ ] - Properly comment all code
 [ ] - Update README  
       - Replace library doc images with text  
       - Complete the description after project completion.
