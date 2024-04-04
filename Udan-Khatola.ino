@@ -1,7 +1,5 @@
 #include <Arduino.h>
-#include <ESP32PWM.h>
-#include <ESP32Servo.h>
-
+#include <Servo.h>
 #include "lib/GyroSensor.h"
 #include "lib/PID.h"
 #include "lib/RFController.h"
