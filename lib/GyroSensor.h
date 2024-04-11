@@ -1,9 +1,9 @@
 #include<Wire.h>
+// MPU 6050 Register
+#define MPU 0x68
 
 class GyroSensor{
 private:
-  // MPU 6050 Register
-  const int MPU = 0x68;
   // Error values for the accelerometer
   float AccErrorX, AccErrorY;
   // Time variables
@@ -43,9 +43,10 @@ public:
     // Setup the error values for the accelerometer
     AccErrorX = 0;
     AccErrorY = 0;
+    AccelerometerData accData;
     for (int c=0; c < 200; c++){
       // Sum all readings
-      AccelerometerData accData = getAccelerometerData();
+      accData = getAccelerometerData();
       AccErrorX += accData.angleX;
       AccErrorY += accData.angleY;
     }

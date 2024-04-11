@@ -1,24 +1,25 @@
 class Kalman
 {   
 private:
-  float KalmanState;
-  float KalmanUncertainty;
-  float KalmanInputRate;
-  float KalmanMeasurement;
-  float KalmanControlMatrix;
+  float kalmanState;
+  float kalmanUncertainty;
+  float kalmanInputRate;
+  float kalmanMeasurement;
+  float kalmanControlMatrix;
+  float kalmanGain;
 public:
-  Kalman(float KalmanState, float KalmanUncertainty, float KalmanControlMatrix=0.04)
+  Kalman(float kalmanUncertainty=0, float kalmanState=0, float kalmanControlMatrix=0.04)
   {
-      KalmanState = KalmanState;
-      KalmanUncertainty = KalmanUncertainty;
-      KalmanControlMatrix = KalmanControlMatrix;
+      kalmanState = kalmanState;
+      kalmanUncertainty = kalmanUncertainty;
+      kalmanControlMatrix = kalmanControlMatrix;
   }
-  double ComputeKalman(float KalmanInputRate, float KalmanMeasurement, float KalmanControlMatrix){
-      KalmanState = KalmanState + (KalmanControlMatrix * KalmanInputRate);
-      KalmanUncertainty = KalmanUncertainty + 0.04*0.04*4*4;
-      float KalmanGain = KalmanUncertainty/(KalmanUncertainty + 3*3);
-      KalmanState = KalmanState + KalmanGain*(KalmanMeasurement - KalmanState);
-      KalmanUncertainty = (1-KalmanGain)*KalmanUncertainty;
-      return KalmanState;
+  double compute(float kalmanInputRate, float kalmanMeasurement){
+      kalmanState = kalmanState + (kalmanControlMatrix * kalmanInputRate);
+      kalmanUncertainty = kalmanUncertainty + 0.04*0.04*4*4;
+      kalmanGain = kalmanUncertainty/(kalmanUncertainty + 3*3);
+      kalmanState = kalmanState + kalmanGain*(kalmanMeasurement - kalmanState);
+      kalmanUncertainty = (1-kalmanGain)*kalmanUncertainty;
+      return kalmanState;
   }
 };

@@ -2,5 +2,5 @@
     "sketch": "Udan-Khatola.ino",
     "configuration": "cpu=atmega328old",
     "board": "arduino:avr:nano",
-    "port": "COM17"
+    "port": "COM7"
 }

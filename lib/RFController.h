@@ -42,7 +42,8 @@ public:
     buffer = map(ppm.read_channel(2), 1000, 2000, -30, 30);
     if (buffer-pitch > 1 || buffer-pitch < -1) // Necessary to remove the noise
       pitch = buffer;
-    yaw = map(ppm.read_channel(4), 1000, 2000, -20, 20);
+    yaw = map(ppm.read_channel(4), 1000, 2000, -40, 40);
     return ControlProps(throttle, roll, pitch, yaw);
+    // return ControlProps(ppm.read_channel(3), ppm.read_channel(1), ppm.read_channel(2), ppm.read_channel(4));
   }
 };

@@ -1,38 +1,43 @@
 #include <Arduino.h>
 #include <Servo.h>
+
 #include "lib/GyroSensor.h"
+#include "lib/Kalman.h"
 #include "lib/PID.h"
 #include "lib/RFController.h"
 
 // ==================== All Constants ==================== //
-const int controllerPin = 3;
-const int throttlePin = 9;
-const int aileronPin1 = 5;
-const int aileronPin2 = 6;
-const int elevatorPin = 10;
-const int rudderPin = 11;
+#define controllerPin 5 // 6 done (arduino side)
+#define throttlePin 9 // 5 done
+#define aileronPinL 3 // 1 done (power side)
+#define aileronPinR 6 // 2 done
+#define elevatorPin 10 // 3 done
+#define rudderPin 11 // 4 done
 
-const int aileron1Default = 90;  // Depends on the servo motor orientation
-const int aileron2Default = 90;
-const int elevatorDefault = 90;
-const int rudderDefault = 90;
-const int aileron1Direction = 1; // Depends on the servo motor orientation... again
-const int aileron2Direction = 1; 
-const int elevatorDirection = -1;
-const int rudderDirection = 1;
+#define aileronLDefault 135  // Depends on the servo motor orientation
+#define aileronRDefault 120
+#define elevatorDefault 70
+#define rudderDefault 80
+#define aileronLDirection 1 // Depends on the servo motor orientation... again
+#define aileronRDirection 1 
+#define elevatorDirection -1
+#define rudderDirection 1
 
 // ==================== Loop Timing ==================== //
 unsigned long loopEndTime, endTime, currentTime;
 
-// ==================== Gyro and Barometer data ==================== //
+// ==================== Gyro data with filters ==================== //
 GyroSensor gyro;
-float roll, pitch;
-int speed;
+GyroSensor::GyroscopeData gyroData;
+Kalman kalmanX(0.1), kalmanY(0.1);
+float speed;
 
 // ==================== PID and Servo Controller ==================== //
-Servo aileron1, aileron2, elevator, rudder;
-PIDController PIDAilerons(5, 0, 0, -30, 30);
-PIDController PIDElevators(5, 0, 0, -60, 60);
+Servo aileronL, aileronR, elevator, rudder;
+CascadingPID PIDAilerons(5, 0, 0, 5, 0, 0, -45, 45, -5, 5);
+CascadingPID PIDElevators(5, 0, 0, 5, 0, 0, -50, 50, -5, 5);
+// PIDController PIDAilerons(5, 0, 0, -45, 45);
+// PIDController PIDElevators(5, 0, 0, -45, 45);
 float aileronValue, elevatorValue;
 
 // ==================== Radio Control ==================== //
@@ -47,35 +52,25 @@ void setup()
   controller.begin();
 
   // ==================== Setup Servo Motors and set them to default position ==================== //
-  aileron1.attach(aileronPin1);
-  aileron2.attach(aileronPin2);
+  aileronL.attach(aileronPinL);
+  aileronR.attach(aileronPinR);
   elevator.attach(elevatorPin);
   rudder.attach(rudderPin);
 
-  aileron1.write(aileron1Default);
-  aileron2.write(aileron2Default);
+  aileronL.write(aileronLDefault);
+  aileronR.write(aileronRDefault);
   elevator.write(elevatorDefault);
   rudder.write(rudderDefault);
 
   //===================== Throttle Pin Setup ==========================//
-  pinMode(throttlePin, OUTPUT);
-  digitalWrite(throttlePin, LOW);
+  // pinMode(throttlePin, OUTPUT);
+  // digitalWrite(throttlePin, LOW);
 
 
   // ==================== Setup MPU6050 Module ==================== //
-  Serial.println("Initializing I2C devices...");
+  Serial.println("Initializing MPU6050 Module");
   gyro.setup();
   gyro.calibrate();
-
-  // ==================== Set Target Values ==================== //
-  // For now, we need to keep the aircraft stable. For this, we need
-  // to keep the roll and pitch values to 0. We will use the gyro
-  // sensor to obtain the roll and pitch values and then use the
-  // servo motors to adjust the actual roll and pitch values to 0.
-  PIDAilerons.setSetpoint(0);
-  PIDElevators.setSetpoint(0);
-  // In the main program loop, these values will be obtained from the
-  // ground station / remote control and will be updated in loop.
 
   Serial.println("Setup Done");
 }
@@ -85,18 +80,29 @@ void loop()
   currentTime = millis();          // Get the current time in milliseconds
 
   // Read the control values from the radio controller and set the PID setpoints
-  controls = controller.readControls(); 
-
-  PIDAilerons.setSetpoint(controls.roll);
-  PIDElevators.setSetpoint(controls.pitch);
+  controls = controller.readControls();
 
   // Use acceleromter and gyro values to obtain the roll, pitch and yaw values
-  roll = gyro.roll();
-  pitch = gyro.pitch();
-
-  // Obtain the aileron and elevator deflection from the PID controller
-  aileronValue = PIDAilerons.compute(roll);
-  elevatorValue = PIDElevators.compute(pitch);
+  // and use them to obtain the aileron and elevator deflection from the PID controller
+  gyroData = gyro.getGyroscopeData();
+  Serial.print("Roll: ");
+  Serial.println(gyro.roll());
+  Serial.print("Pitch: ");
+  Serial.println(gyro.pitch());
+  Serial.print("Yaw: ");
+  Serial.println(gyro.yaw());
+  aileronValue = PIDAilerons.compute(
+    controls.roll,
+    kalmanX.compute(gyroData.rateX, gyro.roll()), 
+    gyroData.rateX
+  );
+  elevatorValue = PIDElevators.compute(
+    controls.pitch,
+    kalmanY.compute(gyroData.rateY, gyro.pitch()), 
+    gyroData.rateY
+  );
+  // aileronValue = controls.roll;
+  // elevatorValue = controls.pitch;
   Serial.print("Aileron Value: ");
   Serial.println(aileronValue);
   Serial.print("Elevator Value: ");
@@ -107,19 +113,19 @@ void loop()
   Serial.println(controls.throttle);
 
   // Control propeller speed using the throttle value
-  speed = map(controls.throttle, 0, 100, 1000, 2000);
-  analogWrite(throttlePin, speed);
+  // speed = map(controls.throttle, 0, 100, 1000, 2000);
+  // analogWrite(throttlePin, speed);
 
   // Set the servo motors to the deflected position
-  aileron1.write(aileron1Default + aileronValue*aileron1Direction);
-  aileron2.write(aileron2Default - aileronValue*aileron2Direction);
+  aileronL.write(aileronLDefault + aileronValue*aileronLDirection);
+  aileronR.write(aileronRDefault - aileronValue*aileronRDirection);
   elevator.write(elevatorDefault + elevatorValue*elevatorDirection);
   rudder.write(rudderDefault + controls.yaw*rudderDirection);
 
   // Efficiently maintain a 50Hz frequency using a delay.
   // Instead of a fixed delay(20), dynamically adjust for program execution time.
   endTime = millis();             // Record current time.
-  loopEndTime = currentTime + 20; // Calculate the expected end time of the loop.
+  loopEndTime = currentTime + 1000; // Calculate the expected end time of the loop.
   if (loopEndTime > endTime) {
     delay(loopEndTime - endTime);               // If program already exceeded 20ms, no need to delay.  
   }

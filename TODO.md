@@ -1,10 +1,6 @@
-Aman and Abhigyan:  
-[ ] - Add Kalman Filter  
-[ ] - Use Cascading PID  
-
-Kshitij and Ponnathavan (Research):  
-[ ] - PID tuning  
-[ ] - Aerodynamics stuff  
+Aman, Abhigyan and Nalin:  
+[x] - Add Kalman Filter  
+[x] - Use Cascading PID  
 
 Pradhyuman:  
 [x] - Add throttle control functionality with RF receiver  

@@ -80,7 +80,7 @@ public:
   {
       outerPID.setTunings(outerKp, outerKi, outerKd);
   }
-  double compute(double outerSetpoint, double KalmanInput,double GyroInput)
+  double compute(double outerSetpoint, double KalmanInput, double GyroInput)
   {   
       outerPID.setSetpoint(outerSetpoint);
       innerPID.setSetpoint(outerPID.compute(KalmanInput));
