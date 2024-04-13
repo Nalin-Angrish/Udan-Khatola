@@ -80,7 +80,7 @@ Kalman kalmanX(0.1), kalmanY(0.1);
 // ==================== PID and Servo Controller ==================== //
 Servo aileronL, aileronR, elevator, rudder, ESC;
 CascadingPID PIDAilerons(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, -30, 30, -5, 5);
-CascadingPID PIDElevators(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, -40, 40, -5, 5);
+CascadingPID PIDElevators(0.1, 0.00, 0.00, 1, 0, 0, -40, 40, -5, 5);
 // PIDController PIDAilerons(5, 0, 0, -45, 45);
 // PIDController PIDElevators(5, 0, 0, -45, 45);
 float aileronValue, elevatorValue;
