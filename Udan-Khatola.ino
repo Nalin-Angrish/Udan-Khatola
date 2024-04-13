@@ -7,20 +7,66 @@
 #include "lib/RFController.h"
 
 // ==================== All Constants ==================== //
-#define controllerPin 5 // 6 done (arduino side)
-#define throttlePin 9 // 5 done
-#define aileronPinL 3 // 1 done (power side)
-#define aileronPinR 6 // 2 done
-#define elevatorPin 10 // 3 done
-#define rudderPin 11 // 4 done
+#define rudderPin 9
+#define controllerPin 11
+#define aileronPinL 5
+#define aileronPinR 6
+#define elevatorPin 10
+#define throttlePin 3
 
-#define aileronLDefault 135  // Depends on the servo motor orientation
+// ==================== Motor Ranges ==================== //
+// Rudder:
+//    85 -> 0
+//    130 (+45) -> 30
+//    20 (-65) -> -30
+int rudderFilter(int value) {
+  // return 0;
+  if (value >= 0) {
+    return map(value, 0, 30, 85, 130);
+  } else {
+    return map(value, -30, 0, 20, 85);
+  }
+}
+// Elevator:
+//    70 -> 0
+//    20 (-50) -> 40
+//    150 (+80) -> -40
+int elevatorFilter(int value) {
+  if (value >= 0) {
+    return map(value, 0, 40, 70, 20);
+  } else {
+    return map(value, -40, 0, 150, 70);
+  }
+}
+// Aileron Right:
+//    120 -> 0
+//    165 (+45) -> 30
+//    70 (-50) -> -30
+int aileronRightFilter(int value){
+  if (value >= 0) {
+    return map(value, 0, 30, 120, 165);
+  } else {
+    return map(value, -30, 0, 70, 120);
+  }
+}
+// Aileron Left:
+//    120 -> 0
+//    40 (-60) -> 30
+//    170 (+50) -> -30
+int aileronLeftFilter(int value){
+  if (value >= 0) {
+    return map(value, 0, 30, 120, 40);
+  } else {
+    return map(value, -30, 0, 170, 120);
+  }
+}
+#define aileronLDefault 120  // Depends on the servo motor orientation
 #define aileronRDefault 120
 #define elevatorDefault 70
-#define rudderDefault 80
+#define rudderDefault 85
 #define aileronLDirection 1 // Depends on the servo motor orientation... again
-#define aileronRDirection 1 
-#define elevatorDirection -1
+#define aileronRDirection -1 
+#define elevatorDirection 1
 #define rudderDirection 1
 
 // ==================== Loop Timing ==================== //
@@ -30,15 +76,15 @@ unsigned long loopEndTime, endTime, currentTime;
 GyroSensor gyro;
 GyroSensor::GyroscopeData gyroData;
 Kalman kalmanX(0.1), kalmanY(0.1);
-float speed;
 
 // ==================== PID and Servo Controller ==================== //
-Servo aileronL, aileronR, elevator, rudder;
-CascadingPID PIDAilerons(5, 0, 0, 5, 0, 0, -45, 45, -5, 5);
-CascadingPID PIDElevators(5, 0, 0, 5, 0, 0, -50, 50, -5, 5);
+Servo aileronL, aileronR, elevator, rudder, ESC;
+CascadingPID PIDAilerons(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, -30, 30, -5, 5);
+CascadingPID PIDElevators(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, -40, 40, -5, 5);
 // PIDController PIDAilerons(5, 0, 0, -45, 45);
 // PIDController PIDElevators(5, 0, 0, -45, 45);
 float aileronValue, elevatorValue;
+float throttle;
 
 // ==================== Radio Control ==================== //
 RFController controller(controllerPin);
@@ -56,16 +102,12 @@ void setup()
   aileronR.attach(aileronPinR);
   elevator.attach(elevatorPin);
   rudder.attach(rudderPin);
+  ESC.attach(3,1000,2000);
 
   aileronL.write(aileronLDefault);
   aileronR.write(aileronRDefault);
   elevator.write(elevatorDefault);
   rudder.write(rudderDefault);
-
-  //===================== Throttle Pin Setup ==========================//
-  // pinMode(throttlePin, OUTPUT);
-  // digitalWrite(throttlePin, LOW);
-
 
   // ==================== Setup MPU6050 Module ==================== //
   Serial.println("Initializing MPU6050 Module");
@@ -113,19 +155,19 @@ void loop()
   Serial.println(controls.throttle);
 
   // Control propeller speed using the throttle value
-  // speed = map(controls.throttle, 0, 100, 1000, 2000);
-  // analogWrite(throttlePin, speed);
+  throttle = map(controls.throttle, 0, 100, 0, 180);
+  ESC.write(throttle);
 
   // Set the servo motors to the deflected position
-  aileronL.write(aileronLDefault + aileronValue*aileronLDirection);
-  aileronR.write(aileronRDefault - aileronValue*aileronRDirection);
-  elevator.write(elevatorDefault + elevatorValue*elevatorDirection);
-  rudder.write(rudderDefault + controls.yaw*rudderDirection);
+  aileronL.write(aileronLeftFilter(aileronValue));
+  aileronR.write(aileronRightFilter(aileronValue));
+  elevator.write(elevatorFilter(elevatorValue));
+  rudder.write(rudderFilter(controls.yaw));
 
   // Efficiently maintain a 50Hz frequency using a delay.
   // Instead of a fixed delay(20), dynamically adjust for program execution time.
   endTime = millis();             // Record current time.
-  loopEndTime = currentTime + 1000; // Calculate the expected end time of the loop.
+  loopEndTime = currentTime + 20; // Calculate the expected end time of the loop.
   if (loopEndTime > endTime) {
     delay(loopEndTime - endTime);               // If program already exceeded 20ms, no need to delay.  
   }
