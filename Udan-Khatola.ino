@@ -55,7 +55,7 @@ int aileronRightFilter(int value){
 //    170 (+50) -> -30
 int aileronLeftFilter(int value){
   if (value >= 0) {
-    return map(value, 0, 30, 120, 40);
+    return map(value, 0, 30, 120, 80);
   } else {
     return map(value, -30, 0, 170, 120);
   }
@@ -79,8 +79,8 @@ Kalman kalmanX(0.1), kalmanY(0.1);
 
 // ==================== PID and Servo Controller ==================== //
 Servo aileronL, aileronR, elevator, rudder, ESC;
-CascadingPID PIDAilerons(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, -30, 30, -5, 5);
-CascadingPID PIDElevators(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, -40, 40, -5, 5);
+CascadingPID PIDAilerons(6, 0.0, 0.0, 0.1, 0.0, 0.0, -30, 30, -5, 5);
+CascadingPID PIDElevators(8, 0.0, 0.0, 0.15, 0.0, 0.0, -40, 40, -5, 5);
 // PIDController PIDAilerons(5, 0, 0, -45, 45);
 // PIDController PIDElevators(5, 0, 0, -45, 45);
 float aileronValue, elevatorValue;
@@ -127,12 +127,12 @@ void loop()
   // Use acceleromter and gyro values to obtain the roll, pitch and yaw values
   // and use them to obtain the aileron and elevator deflection from the PID controller
   gyroData = gyro.getGyroscopeData();
-  Serial.print("Roll: ");
-  Serial.println(gyro.roll());
-  Serial.print("Pitch: ");
-  Serial.println(gyro.pitch());
-  Serial.print("Yaw: ");
-  Serial.println(gyro.yaw());
+  // Serial.print("Roll: ");
+  // Serial.println(gyro.roll());
+  // Serial.print("Pitch: ");
+  // Serial.println(gyro.pitch());
+  // Serial.print("Yaw: ");
+  // Serial.println(gyro.yaw());
   aileronValue = PIDAilerons.compute(
     controls.roll,
     kalmanX.compute(gyroData.rateX, gyro.roll()), 
@@ -145,17 +145,19 @@ void loop()
   );
   // aileronValue = controls.roll;
   // elevatorValue = controls.pitch;
-  Serial.print("Aileron Value: ");
-  Serial.println(aileronValue);
-  Serial.print("Elevator Value: ");
-  Serial.println(elevatorValue);
-  Serial.print("Rudder Value: ");
-  Serial.println(controls.yaw);
+  // Serial.print("Aileron Value: ");
+  // Serial.println(aileronValue);
+  // Serial.print("Elevator Value: ");
+  // Serial.println(elevatorValue);
+  // Serial.print("Rudder Value: ");
+  // Serial.println(controls.yaw);
   Serial.print("Throttle: ");
   Serial.println(controls.throttle);
 
   // Control propeller speed using the throttle value
   throttle = map(controls.throttle, 0, 100, 0, 180);
+  Serial.print("Throttle: ");
+  Serial.println(throttle);
   ESC.write(throttle);
 
   // Set the servo motors to the deflected position

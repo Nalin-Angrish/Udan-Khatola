@@ -36,10 +36,11 @@ public:
     //   throttle += buffer;
     throttle = constrain(buffer, 0, 100);
 
-    buffer = map(ppm.read_channel(1), 1000, 2000, -90, 90);
+//CHANGE THE 
+    buffer = map(ppm.read_channel(1), 1000, 2000, -30, 30);//change the range from -30 to 30
     if (buffer-roll > 1 || buffer-roll < -1) // Necessary to remove the noise
       roll = buffer;
-    buffer = map(ppm.read_channel(2), 1000, 2000, -40, 40);
+    buffer = map(ppm.read_channel(2), 1000, 2000, -30, 30);
     if (buffer-pitch > 1 || buffer-pitch < -1) // Necessary to remove the noise
       pitch = buffer;
     yaw = map(ppm.read_channel(4), 1000, 2000, -30, 30);

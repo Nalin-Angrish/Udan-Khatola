@@ -2,5 +2,6 @@
     "sketch": "Udan-Khatola.ino",
     "configuration": "cpu=atmega328old",
     "board": "arduino:avr:nano",
-    "port": "COM7"
+    "port": "COM9",
+    "programmer": "arduinoisp"
 }
